@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket STOMP Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <div>
+        <input type="text" id="message" placeholder="Enter message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div id="messages"></div>
+    <script>
+        var stompClient = null;
+
+        function connect() {
+            console.log('Attempting to connect...');
+            var socket = new WebSocket('ws://localhost:8080/ws');
+            
+            socket.onopen = function(event) {
+                console.log('WebSocket connection opened:', event);
+            };
+            
+            socket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+
+            stompClient = Stomp.over(socket);
+            stompClient.debug = function(str) {
+                console.log('STOMP: ' + str);
+            };
+            
+            var headers = {
+                login: 'root',
+                passcode: 'secret'
+            };
+
+            stompClient.connect(headers, function(frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/messages', function(message) {
+                    showMessage(JSON.parse(message.body));
+                });
+            }, function(error) {
+                console.error('STOMP error:', error);
+            });
+        }
+
+        function sendMessage() {
+            var messageContent = document.getElementById('message').value;
+            if (stompClient && stompClient.connected) {
+                stompClient.send("/app/chat", {}, JSON.stringify({
+                    'type': 'CHAT',
+                    'content': messageContent,
+                    'sender': 'User'
+                }));
+            } else {
+                console.error('Not connected to WebSocket');
+                showMessage({
+                    'type': 'ERROR',
+                    'content': 'Failed to send message: Not connected',
+                    'sender': 'System'
+                });
+            }
+        }
+
+        function showMessage(message) {
+            var messageElement = document.createElement('div');
+            messageElement.innerHTML = message.sender + ': ' + message.content;
+            document.getElementById('messages').appendChild(messageElement);
+        }
+
+        // Attempt to connect immediately when the page loads
+        connect();
+
+        // Add event listener for unload to close connection gracefully
+        window.addEventListener('unload', function() {
+            if (stompClient && stompClient.connected) {
+                stompClient.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>

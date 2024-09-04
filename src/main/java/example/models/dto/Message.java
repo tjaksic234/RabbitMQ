@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewMessage {
-    private long id;
-    private String title;
-    private String description;
-    private double rating;
-    private long companyId;
+public class Message {
+    private String type;
+    private String content;
+    private String sender;
 }
