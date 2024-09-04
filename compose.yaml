@@ -1,7 +1,9 @@
 services:
   rabbitmq:
     container_name: 'rabbitMQ'
-    image: 'rabbitmq:management'
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - 'RABBITMQ_DEFAULT_PASS=secret'
       - 'RABBITMQ_DEFAULT_USER=root'
