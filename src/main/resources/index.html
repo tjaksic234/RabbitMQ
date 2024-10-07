@@ -47,7 +47,9 @@
 
         function sendMessage() {
             var messageContent = document.getElementById('message').value;
+            console.log('Attempting to send message:', messageContent);
             if (stompClient && stompClient.connected) {
+                console.log('STOMP client connected, sending message');
                 stompClient.send("/app/chat", {}, JSON.stringify({
                     'type': 'CHAT',
                     'content': messageContent,

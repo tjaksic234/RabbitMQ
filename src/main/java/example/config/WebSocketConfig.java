@@ -16,11 +16,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     //? in order for rabbitMQ to work for the STOMP protocol
-    //? you will need to enable the STOMP plugin in the docker container
+    //? you will need to enable the STOMP plugin (port 61613) in the docker container
     //? if you just want to test the AMQP protocol set the port to 5672
+    //* by default I enabled the STOMP plugin in the Dockerfile file
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableStompBrokerRelay("/topic")
+        registry.enableStompBrokerRelay("/topic", "/queue")
                 .setRelayHost("localhost")
                 .setRelayPort(61613)
                 .setClientLogin("root")
